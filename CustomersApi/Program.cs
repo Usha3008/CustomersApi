@@ -1,4 +1,5 @@
 
+using CustomersApi.DataAccess;
 using CustomersApi.IRepository;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +12,7 @@ namespace CustomersApi
             var builder = WebApplication.CreateBuilder(args);
          
             builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+            builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
             builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
             {
                 options.InvalidModelStateResponseFactory = context =>
@@ -28,6 +30,7 @@ namespace CustomersApi
                     return new BadRequestObjectResult(response);
                 };
             });
+            
 
             // Add services to the container.
             builder.Services.AddControllers();
@@ -44,6 +47,7 @@ namespace CustomersApi
                 app.UseSwaggerUI();
             }
 
+            app.UseCors(Policy=>Policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             app.UseAuthorization();
 
 

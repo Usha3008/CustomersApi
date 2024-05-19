@@ -3,11 +3,13 @@ using CustomersApi.IRepository;
 using CustomersApi.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 
 namespace CustomersApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("")]
     [ApiController]
+    [EnableCors]
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerRepository _customerRepository;
@@ -60,8 +62,9 @@ namespace CustomersApi.Controllers
 
 
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateCustomer([FromBody] Customer customer)
+        [HttpPut("{id}")]
+        [EnableCors]
+        public async Task<IActionResult> UpdateCustomer(int id, [FromBody] Customer customer)
         {
             // Check for null customer object
             if (customer == null)
@@ -69,25 +72,31 @@ namespace CustomersApi.Controllers
                 return BadRequest(new { Error = "Customer data cannot be null." });
             }
 
-            // Validate model state - now simplified due to centralized handling
+            // Validate model state
             if (!ModelState.IsValid)
             {
-                // Directly return BadRequest; specific errors are formatted in Program.cs
                 return BadRequest(ModelState);
             }
 
-            // Ensure the customer ID is valid
-            if (customer.CustomerId <= 0)
+            // Ensure the customer ID in the route matches the ID in the body
+            if (id != customer.CustomerId)
+            {
+                return BadRequest(new { Error = "Mismatched Customer ID." });
+            }
+
+            // Ensure the customer ID is valid and positive
+            if (id <= 0)
             {
                 return BadRequest(new { Error = "Invalid Customer ID." });
             }
 
             try
             {
+                // Use the ID from the route to ensure the correct customer is updated
                 var updatedCustomer = await _customerRepository.UpdateCustomerAsync(customer);
                 if (updatedCustomer == null)
                 {
-                    return NotFound(new { Error = $"No active customer found with ID {customer.CustomerId}." });
+                    return NotFound(new { Error = $"No active customer found with ID {id}." });
                 }
 
                 return Ok(new { Message = "Customer updated successfully.", Customer = updatedCustomer });
@@ -98,7 +107,8 @@ namespace CustomersApi.Controllers
                 return StatusCode(500, new { Error = $"An internal error occurred: {ex.Message}" });
             }
         }
-    
+
+
 
 
 

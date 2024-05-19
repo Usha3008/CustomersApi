@@ -10,7 +10,7 @@ namespace CustomersApi.DataAccess
 
         public BaseDataAccess(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("CustomersConnection");
+            _connectionString = configuration.GetConnectionString("FinalProjConn");
         }
         protected void OpenConnection()
         {
@@ -52,6 +52,6 @@ namespace CustomersApi.DataAccess
 
 
         }
+
     }
 }
- 
