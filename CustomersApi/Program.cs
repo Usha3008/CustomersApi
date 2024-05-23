@@ -1,7 +1,10 @@
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using CustomersApi.DataAccess;
 using CustomersApi.IRepository;
+using CustomersApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 
 namespace CustomersApi
 {
@@ -10,9 +13,23 @@ namespace CustomersApi
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-         
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+       .AddJwtBearer(options =>
+       {
+           options.TokenValidationParameters = new TokenValidationParameters
+           {
+               ValidateIssuerSigningKey = true,
+               IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:AppSecret"])),
+               ValidateIssuer = false,
+               ValidateAudience = false
+           };
+       });
+           
+
             builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
             builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+            builder.Services.AddScoped<IBeneficiariesRepository, BeneficiariesRepository>();    
             builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
             {
                 options.InvalidModelStateResponseFactory = context =>
@@ -48,6 +65,8 @@ namespace CustomersApi
             }
 
             app.UseCors(Policy=>Policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
