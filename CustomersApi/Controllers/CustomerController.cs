@@ -10,6 +10,7 @@ namespace CustomersApi.Controllers
     [Route("")]
     [ApiController]
     [EnableCors]
+    [Authorize]
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerRepository _customerRepository;
@@ -19,6 +20,7 @@ namespace CustomersApi.Controllers
             _customerRepository = customerRepository;
         }
         [HttpGet]
+         [Authorize]
         public async Task<IActionResult> GetAllActiveCustomers()
         {
             try
@@ -41,6 +43,7 @@ namespace CustomersApi.Controllers
 
    
     [HttpGet("{id}")]
+     [Authorize]
         public async Task<IActionResult> GetActiveCustomerById(int id)
         {
             try
@@ -64,6 +67,7 @@ namespace CustomersApi.Controllers
 
         [HttpPut("{id}")]
         [EnableCors]
+         [Authorize]
         public async Task<IActionResult> UpdateCustomer(int id, [FromBody] Customer customer)
         {
             // Check for null customer object
@@ -114,6 +118,7 @@ namespace CustomersApi.Controllers
 
 
         [HttpDelete("{id}")]
+         [Authorize]
         public async Task<IActionResult> DeactivateCustomer(int id)
         {
             try
